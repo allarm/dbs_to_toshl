@@ -9,8 +9,10 @@ input_file = '/Users/achertolyas/git/toshl_dbs/May-June credit.txt'
 categories_file = '/Users/achertolyas/git/toshl_dbs/categories.yaml'
 csv_file = '/Users/achertolyas/git/toshl_dbs/output.csv'
 
-fieldnames = 'Date,Account,Category,Tags,Expense amount,Income amount,Currency,' \
-             'In main currency,Main currency,Description'.split(',')
+fieldnames = '"Date","Account","Category","Tags","Expense amount","Income amount","Currency",' \
+             '"In main currency","Main currency","Description"'.split(',')
+fieldnames_dict = 'date,account,category,tags,expense_amount,income_amount,currency,' \
+                  'in_main_currency,main_currency,description'.split(',')
 
 csv_list = []
 tmp_dict = {}
@@ -28,7 +30,7 @@ p = re.compile('^(?P<date_str>'
                '(?P<description>.+?(?=\s\s))\s+'
                '(?P<amount_str>'
                '(?P<currency>.+?)'
-               '(?P<amount>\d+(\.|\,)\d+)'
+               '(?P<amount>\d+[.,]\d+)'
                '(?P<flag>.*)'
                ')'
                )
@@ -36,15 +38,18 @@ p = re.compile('^(?P<date_str>'
 with open(categories_file, 'r') as f:
     categories = yaml.load(f)
 
+print(categories)
+
 with open(input_file, 'r') as f:
-    for x in f:         # for line in txt file
+    for x in f:  # for line in txt file
         x = x.strip()
         if len(x) > 1:
             parsed = p.match(x)
+            found = False
             if parsed:
                 parsed_dict = parsed.groupdict()
                 # print(parsed_dict)
-                for y in categories['regexps']:     # matching the yaml regexp dictionary to an expense
+                for y in categories['regexps']:  # matching the yaml regexp dictionary to an expense
                     pc = re.compile(y['regexp'])
                     if pc.match(parsed_dict['description']):  # matched a category
                         # print("Matched: {}, category: {}, tags: {}, account: {}".format(y['regexp'], y['category'],
@@ -55,39 +60,55 @@ with open(input_file, 'r') as f:
                         if 'description' in y:
                             tmp_dict['description'] = y['description']
                         else:
-                            tmp_dict['description'] = ''
+                            tmp_dict['description'] = parsed_dict['description']
                         tmp_dict['tags'] = ' '.join(y['tags'])
+                        found = True
+                        break
 
-                    else:  # no category matched
-                        # print("No match")
-                        tmp_dict['category'] = 'default'
-                        tmp_dict['account'] = 'default'
-                        tmp_dict['description'] = parsed_dict['description']
-                        tmp_dict['tags'] = ''
+                    # else:  # no category matched
+                if not found:
+                    # print("No match")
+                    tmp_dict['category'] = 'default'
+                    tmp_dict['account'] = 'default'
+                    tmp_dict['description'] = parsed_dict['description']
+                    tmp_dict['tags'] = ''
 
-                    tmp_dict['date'] = '{}/{}/{}'.format(parsed_dict['day'],
+                tmp_dict['date'] = '{}/{}/{}'.format(parsed_dict['day'],
                                                          month_convert[parsed_dict['month'].lower()],
                                                          parsed_dict['year'])
-                    if parsed_dict['flag'].split() == 'cr':
-                        """
-                        cr means credit, if set then populating the income field
-                        otherwise populating the expenses field
-                        amount can be in 1,123 format, removing the comma 
-                        """
-                        tmp_dict['income_amount'] = tmp_dict['in_main_currency'] = \
-                            parsed_dict['amount'].replace(',', '')
-                        tmp_dict['expense_amount'] = '0'
-                    else:
-                        tmp_dict['expense_amount'] = tmp_dict['in_main_currency'] = \
-                            parsed_dict['amount'].replace(',', '')
-                        tmp_dict['income_amount'] = '0'
+                if parsed_dict['flag'].split() == 'cr':
+                    """
+                    cr means credit, if set then populating the income field
+                    otherwise populating the expenses field
+                    amount can be in 1,123 format, removing the comma 
+                    """
+                    tmp_dict['income_amount'] = tmp_dict['in_main_currency'] = \
+                        parsed_dict['amount'].replace(',', '')
+                    tmp_dict['expense_amount'] = '0'
+                else:
+                    tmp_dict['expense_amount'] = tmp_dict['in_main_currency'] = \
+                        parsed_dict['amount'].replace(',', '')
+                    tmp_dict['income_amount'] = '0'
 
-                    tmp_dict['currency'] = tmp_dict['main_currency'] = currency_convert[parsed_dict['currency']]
+                tmp_dict['currency'] = tmp_dict['main_currency'] = currency_convert[parsed_dict['currency']]
 
-                    # tmp_dict['in_main_curency'] = parsed_dict['amount'].replace(',', '')
-                    tmp_dict['main_cur'] = currency_convert[parsed_dict['currency']]
+                # tmp_dict['in_main_curency'] = parsed_dict['amount'].replace(',', '')
+                tmp_dict['main_cur'] = currency_convert[parsed_dict['currency']]
 
-                # print(tmp_dict)
+            # print(tmp_dict)
                 csv_list.append(dict(tmp_dict))
 
-pprint(csv_list)
+# pprint(csv_list)
+# tmp_lst = []
+with open(csv_file, 'a') as result_file:
+    print(fieldnames)
+    writer = csv.writer(result_file, dialect='excel')
+    writer.writerow(fieldnames)
+    for x in csv_list:
+        tmp_lst = []
+        for y in fieldnames_dict:
+            # print(x[y])
+            tmp_lst.append(x[y])
+        # print(tmp_lst)
+        # exit(0)
+        writer.writerow(tmp_lst)
