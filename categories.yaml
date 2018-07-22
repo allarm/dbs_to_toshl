@@ -1,29 +1,36 @@
 regexps:
   - regexp: '^UBER TRIP.*'
+    account: 'main'
     category: 'transport'
     tags:
       - 'uber'
       - 'huuber'
   - regexp: '^UBER EATS'
+    account: 'main'
     category: 'food'
     tags:
       - 'uber eats'
       - 'food delivery'
   - regexp: '^7-ELEVEN'
+    account: 'main'
     category: 'food'
     tags:
       - '7eleven'
       - 'food'
   - regexp: '^GUARDIAN'
+    account: 'main'
     category: 'drugs'
     tags:
       - '7eleven'
       - 'food'
   - regexp: '^CALTRAIN'
+    account: 'main'
     category: 'transport'
     tags:
       - 'SF'
+    description: 'SF train system'
   - regexp: '^SFMOMA'
+    account: 'main'
     category: 'museum'
     tags:
       - 'SF'
