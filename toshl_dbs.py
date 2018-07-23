@@ -7,7 +7,15 @@ import csv
 import argparse
 import subprocess
 import sys
+import os.path
 
+def flush_tmp(file):
+    """
+    Remove file if exists
+    :param file:
+    :return:
+    """
+    if os.path.isfile(file): os.remove(file)
 
 def run_pdftotext(pdf_filename, output_txt_filename):
     """
@@ -18,18 +26,20 @@ def run_pdftotext(pdf_filename, output_txt_filename):
     :return: output_txt_filename file (not a return value)
     """
     # run_str = './pdftotext -simple -lineprinter -nopgbrk -eol unix {}'.format(filename.split().replace(' ', '\\ '))
-    run_list = ['./pdftotext', '-simple', '-lineprinter', '-nopgbrk', '-q',
-                '-eol', 'unix', pdf_filename.strip().replace(' ', '\\ '), output_txt_filename]
+    run_list = ['./pdftotext', '-simple', '-lineprinter', '-nopgbrk', '-q', '-eol', 'unix', pdf_filename, output_txt_filename]
+                # '-eol', 'unix', pdf_filename.strip().replace(' ', '\\ '), output_txt_filename]
     session = subprocess.call(run_list)
     if session:
         print('Something is wrong with pdftotext, is it even here?')
         exit(1)
+
     return (0)  # assuming that everything went well and the output file has been created
 
 
 def main():
     categories_file = 'categories.yaml'
     txt_file = 'pdftotext.tmp'
+    flush_tmp(txt_file)
     csv_file = 'output.csv'
 
     fieldnames = '"Date","Account","Category","Tags","Expense amount","Income amount","Currency",' \
@@ -66,6 +76,11 @@ def main():
         exit(1)
 
     if args.output: csv_file = args.output
+
+    if os.path.isfile(csv_file):
+        print("File {} exists, better not change it, exiting".format(csv_file))
+        exit(1)
+
     if args.categories: categories_file = args.categories
 
     # txt_file = '/Users/achertolyas/git/toshl_dbs/May-June credit.txt'
@@ -166,6 +181,7 @@ def main():
             # exit(0)
             writer.writerow(tmp_lst)
 
+    flush_tmp(txt_file)
     exit(0)
 
 
