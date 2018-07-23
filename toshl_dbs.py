@@ -5,17 +5,32 @@ from pprint import pprint
 import yaml
 import csv
 import argparse
-import os
+import subprocess
+import sys
 
 
-def run_pdftotext(filename:''):
-   run_str = './pdftotext -simple -lineprinter -nopgbrk -eol unix {}'.format(filename.split().replace(' ', '\\ '))
-   return(0)
+def run_pdftotext(pdf_filename, output_txt_filename):
+    """
+    Trying to run the pdftotext utility and pass there some parameters. It should generate the output_txt_filename file
+    with the text layer of the pdf_filename file
+    :param pdf_filename:
+    :param output_txt_filename:
+    :return: output_txt_filename file (not a return value)
+    """
+    # run_str = './pdftotext -simple -lineprinter -nopgbrk -eol unix {}'.format(filename.split().replace(' ', '\\ '))
+    run_list = ['./pdftotext', '-simple', '-lineprinter', '-nopgbrk', '-q',
+                '-eol', 'unix', pdf_filename.strip().replace(' ', '\\ '), output_txt_filename]
+    session = subprocess.call(run_list)
+    if session:
+        print('Something is wrong with pdftotext, is it even here?')
+        exit(1)
+    return (0)  # assuming that everything went well and the output file has been created
+
 
 def main():
-    input_file = '/Users/achertolyas/git/toshl_dbs/May-June credit.txt'
-    categories_file = '/Users/achertolyas/git/toshl_dbs/categories.yaml'
-    csv_file = '/Users/achertolyas/git/toshl_dbs/output.csv'
+    categories_file = 'categories.yaml'
+    txt_file = 'pdftotext.tmp'
+    csv_file = 'output.csv'
 
     fieldnames = '"Date","Account","Category","Tags","Expense amount","Income amount","Currency",' \
                  '"In main currency","Main currency","Description"'.split(',')
@@ -29,7 +44,36 @@ def main():
                      'aug': '08', 'sep': '09', 'oct': '10', 'nov': '11', 'dec': '12'}
     currency_convert = {'S$': 'SGD', '$': 'USD'}
 
-    # p = re.compile('^\d\d\s\D{3}\s\d{4}')
+    parser = argparse.ArgumentParser(description='Generate csv file for toshl from DBS pdf account details',
+                                     epilog='')
+
+    parser.add_argument('-i', '--input', type=str, help='Input pdf file')
+    parser.add_argument('-o', '--output', type=str, help='Output csv file (default is {})'.format(csv_file))
+    parser.add_argument('-c', '--categories', type=str, help='YAML categories dictionary file (default is {})'.format(categories_file))
+    parser.add_argument('--debug', action='store_true', help='Turn debug on')
+
+    args = parser.parse_args()
+
+    if args.debug:
+        print(args)
+
+    if args.input:
+        input_pdf_file = args.input
+        # check if file exists
+        pass
+    else:
+        print("Give me the input pdf file. For help use {} --help".format(sys.argv[0]))
+        exit(1)
+
+    if args.output: csv_file = args.output
+    if args.categories: categories_file = args.categories
+
+    # txt_file = '/Users/achertolyas/git/toshl_dbs/May-June credit.txt'
+    # categories_file = '/Users/achertolyas/git/toshl_dbs/categories.yaml'
+    # csv_file = '/Users/achertolyas/git/toshl_dbs/output.csv'
+
+    run_pdftotext(input_pdf_file, txt_file)
+
     p = re.compile('^(?P<date_str>'
                    '(?P<day>\d\d)\s'
                    '(?P<month>\D{3})\s'
@@ -46,11 +90,12 @@ def main():
     with open(categories_file, 'r') as f:
         categories = yaml.load(f)
 
-    print(categories)
+    # print(categories)
 
-    with open(input_file, 'r') as f:
+    with open(txt_file, 'r', encoding='latin-1') as f:
         for x in f:  # for line in txt file
             x = x.strip()
+            if args.debug: print(x)
             if len(x) > 1:
                 parsed = p.match(x)
                 found = False
@@ -82,8 +127,8 @@ def main():
                         tmp_dict['tags'] = ''
 
                     tmp_dict['date'] = '{}/{}/{}'.format(parsed_dict['day'],
-                                                             month_convert[parsed_dict['month'].lower()],
-                                                             parsed_dict['year'])
+                                                         month_convert[parsed_dict['month'].lower()],
+                                                         parsed_dict['year'])
                     if parsed_dict['flag'].split() == 'cr':
                         """
                         cr means credit, if set then populating the income field
@@ -103,7 +148,7 @@ def main():
                     # tmp_dict['in_main_curency'] = parsed_dict['amount'].replace(',', '')
                     tmp_dict['main_cur'] = currency_convert[parsed_dict['currency']]
 
-                # print(tmp_dict)
+                    # print(tmp_dict)
                     csv_list.append(dict(tmp_dict))
 
     # pprint(csv_list)
@@ -126,3 +171,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # run_pdftotext('estatement_example.pdf', 'output.txt')
