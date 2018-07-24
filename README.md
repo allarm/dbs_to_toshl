@@ -6,6 +6,8 @@ Uses xpdfreader for pdf-2-text conversion. Put the 'pdftotext' executable in the
 
 ## Categories dictionary
 
+Used for assigning account/categories/tags/description parameters to the output csv file.
+
 Pretty self-descriptive:
 
 ```yaml
