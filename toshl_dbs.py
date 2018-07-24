@@ -45,10 +45,8 @@ def run_pdftotext(pdf_filename, output_txt_filename):
     :param output_txt_filename:
     :return: output_txt_filename file (not a return value)
     """
-    # run_str = './pdftotext -simple -lineprinter -nopgbrk -eol unix {}'.format(filename.split().replace(' ', '\\ '))
     run_list = ['./pdftotext', '-simple', '-lineprinter', '-nopgbrk', '-q', '-eol', 'unix', pdf_filename,
                 output_txt_filename]
-    # '-eol', 'unix', pdf_filename.strip().replace(' ', '\\ '), output_txt_filename]
     session = subprocess.call(run_list)
     if session:
         print('Something is wrong with pdftotext, is it even here?')
@@ -93,7 +91,9 @@ def main():
     if args.input:
         input_pdf_file = args.input
         # check if file exists
-        pass
+        if not os.path.isfile(input_pdf_file):
+            print("{} does not exist, exiting".format(input_pdf_file))
+            exit(1)
     else:
         print("Give me the input pdf file. For help use {} --help".format(sys.argv[0]))
         exit(1)
@@ -106,15 +106,10 @@ def main():
 
     if args.categories: categories_file = args.categories
 
-    # txt_file = '/Users/achertolyas/git/toshl_dbs/May-June credit.txt'
-    # categories_file = '/Users/achertolyas/git/toshl_dbs/categories.yaml'
-    # csv_file = '/Users/achertolyas/git/toshl_dbs/output.csv'
-
     run_pdftotext(input_pdf_file, txt_file)
 
     input_file_format = return_input_file_type(txt_file)
 
-    # print("File format: {}".format(input_file_format))
     if input_file_format == 'consolidated_statement':
         print("Can't parse consolidated statemnt yet, use transaction history instead.")
         flush_tmp(txt_file)
@@ -142,8 +137,6 @@ def main():
     with open(categories_file, 'r') as f:
         categories = yaml.load(f)
 
-    # print(categories)
-
     with open(txt_file, 'r', encoding='latin-1') as f:
         for x in f:  # for line in txt file
             x = x.strip()
@@ -153,13 +146,9 @@ def main():
                 found = False
                 if parsed:
                     parsed_dict = parsed.groupdict()
-                    # print(parsed_dict)
                     for y in categories['regexps']:  # matching the yaml regexp dictionary to an expense
                         pc = re.compile(y['regexp'])
                         if pc.match(parsed_dict['description']):  # matched a category
-                            # print("Matched: {}, category: {}, tags: {}, account: {}".format(y['regexp'], y['category'],
-                            #                                                                 y['tags'], y['account']))
-                            # pprint(parsed_dict)
                             tmp_dict['category'] = y['category']
                             tmp_dict['account'] = y['account']
                             if 'description' in y:
@@ -170,9 +159,7 @@ def main():
                             found = True
                             break
 
-                        # else:  # no category matched
                     if not found:
-                        # print("No match")
                         tmp_dict['category'] = 'default'
                         tmp_dict['account'] = 'default'
                         tmp_dict['description'] = parsed_dict['description']
@@ -197,14 +184,10 @@ def main():
 
                     tmp_dict['currency'] = tmp_dict['main_currency'] = currency_convert[parsed_dict['currency']]
 
-                    # tmp_dict['in_main_curency'] = parsed_dict['amount'].replace(',', '')
                     tmp_dict['main_cur'] = currency_convert[parsed_dict['currency']]
 
-                    # print(tmp_dict)
                     csv_list.append(dict(tmp_dict))
 
-    # pprint(csv_list)
-    # tmp_lst = []
     with open(csv_file, 'a') as result_file:
         print(fieldnames)
         writer = csv.writer(result_file, dialect='excel')
@@ -212,10 +195,7 @@ def main():
         for x in csv_list:
             tmp_lst = []
             for y in fieldnames_dict:
-                # print(x[y])
                 tmp_lst.append(x[y])
-            # print(tmp_lst)
-            # exit(0)
             writer.writerow(tmp_lst)
 
     flush_tmp(txt_file)
@@ -224,4 +204,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # run_pdftotext('estatement_example.pdf', 'output.txt')
