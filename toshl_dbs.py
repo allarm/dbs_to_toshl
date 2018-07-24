@@ -9,6 +9,7 @@ import subprocess
 import sys
 import os.path
 
+
 def flush_tmp(file):
     """
     Remove file if exists
@@ -16,6 +17,25 @@ def flush_tmp(file):
     :return:
     """
     if os.path.isfile(file): os.remove(file)
+
+
+def return_input_file_type(input_file):
+    """
+    Simple file format check
+    Transaction history document contains: "View Transaction History"
+    Consolidated statement contains: "CONSOLIDATED STATEMENT"
+    :return:
+    """
+
+    formats = {'View Transaction History': 'transaction_history', 'CONSOLIDATED STATEMENT': 'consolidated_statement'}
+
+    with open(input_file, 'r', encoding='latin-1') as f:
+        for line in f:
+            for y in formats.keys():
+                if y in line:
+                    return formats[y]
+    return 'unknown'
+
 
 def run_pdftotext(pdf_filename, output_txt_filename):
     """
@@ -26,14 +46,15 @@ def run_pdftotext(pdf_filename, output_txt_filename):
     :return: output_txt_filename file (not a return value)
     """
     # run_str = './pdftotext -simple -lineprinter -nopgbrk -eol unix {}'.format(filename.split().replace(' ', '\\ '))
-    run_list = ['./pdftotext', '-simple', '-lineprinter', '-nopgbrk', '-q', '-eol', 'unix', pdf_filename, output_txt_filename]
-                # '-eol', 'unix', pdf_filename.strip().replace(' ', '\\ '), output_txt_filename]
+    run_list = ['./pdftotext', '-simple', '-lineprinter', '-nopgbrk', '-q', '-eol', 'unix', pdf_filename,
+                output_txt_filename]
+    # '-eol', 'unix', pdf_filename.strip().replace(' ', '\\ '), output_txt_filename]
     session = subprocess.call(run_list)
     if session:
         print('Something is wrong with pdftotext, is it even here?')
         exit(1)
 
-    return (0)  # assuming that everything went well and the output file has been created
+    return 0  # assuming that everything went well and the output file has been created
 
 
 def main():
@@ -50,8 +71,9 @@ def main():
     csv_list = []
     tmp_dict = {}
 
-    month_convert = {'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'may': '05', 'jun': '06', 'jul': '07',
-                     'aug': '08', 'sep': '09', 'oct': '10', 'nov': '11', 'dec': '12'}
+    month_convert = {
+        'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'may': '05', 'jun': '06', 'jul': '07',
+        'aug': '08', 'sep': '09', 'oct': '10', 'nov': '11', 'dec': '12'}
     currency_convert = {'S$': 'SGD', '$': 'USD'}
 
     parser = argparse.ArgumentParser(description='Generate csv file for toshl from DBS pdf account details',
@@ -59,7 +81,8 @@ def main():
 
     parser.add_argument('-i', '--input', type=str, help='Input pdf file')
     parser.add_argument('-o', '--output', type=str, help='Output csv file (default is {})'.format(csv_file))
-    parser.add_argument('-c', '--categories', type=str, help='YAML categories dictionary file (default is {})'.format(categories_file))
+    parser.add_argument('-c', '--categories', type=str,
+                        help='YAML categories dictionary file (default is {})'.format(categories_file))
     parser.add_argument('--debug', action='store_true', help='Turn debug on')
 
     args = parser.parse_args()
@@ -89,6 +112,19 @@ def main():
 
     run_pdftotext(input_pdf_file, txt_file)
 
+    input_file_format = return_input_file_type(txt_file)
+
+    # print("File format: {}".format(input_file_format))
+    if input_file_format == 'consolidated_statement':
+        print("Can't parse consolidated statemnt yet, use transaction history instead.")
+        flush_tmp(txt_file)
+        exit(1)
+    if input_file_format == 'unknown':
+        print("Unknown file format")
+        flush_tmp(txt_file)
+        exit(1)
+
+    # @formatter:off
     p = re.compile('^(?P<date_str>'
                    '(?P<day>\d\d)\s'
                    '(?P<month>\D{3})\s'
@@ -101,6 +137,7 @@ def main():
                    '(?P<flag>.*)'
                    ')'
                    )
+    # @formatter:on
 
     with open(categories_file, 'r') as f:
         categories = yaml.load(f)
