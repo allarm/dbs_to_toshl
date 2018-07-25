@@ -28,5 +28,10 @@ Pretty self-descriptive:
       - 'transport'
 ```
 
+## ToDo
+
+1. Remove `account` from the categories dictionary (or better make it optional) and take it from the command line arguments.
+1. Add command line arguments for default `category` value
+
 ## Links
 1. http://www.xpdfreader.com/download.html

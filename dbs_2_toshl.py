@@ -60,6 +60,8 @@ def main():
     txt_file = 'pdftotext.tmp'
     flush_tmp(txt_file)
     csv_file = 'output.csv'
+    default_category = 'default'
+    default_account = 'default'
 
     fieldnames = '"Date","Account","Category","Tags","Expense amount","Income amount","Currency",' \
                  '"In main currency","Main currency","Description"'.split(',')
@@ -79,14 +81,22 @@ def main():
 
     parser.add_argument('-i', '--input', type=str, help='Input pdf file')
     parser.add_argument('-o', '--output', type=str, help='Output csv file (default is {})'.format(csv_file))
-    parser.add_argument('-c', '--categories', type=str,
+    parser.add_argument('-d', '--dictionary', type=str,
                         help='YAML categories dictionary file (default is {})'.format(categories_file))
+    parser.add_argument('-c', '--category', type=str, help='Default Toshl category name')
+    parser.add_argument('-a', '--account', type=str, help='Default Toshl account name')
     parser.add_argument('--debug', action='store_true', help='Turn debug on')
 
     args = parser.parse_args()
 
     if args.debug:
         print(args)
+
+    if args.category:
+        default_category = args.category
+
+    if args.account:
+        default_account = args.account
 
     if args.input:
         input_pdf_file = args.input
@@ -104,14 +114,14 @@ def main():
         print("File {} exists, better not change it, exiting".format(csv_file))
         exit(1)
 
-    if args.categories: categories_file = args.categories
+    if args.dictionary: categories_file = args.dictionary
 
     run_pdftotext(input_pdf_file, txt_file)
 
     input_file_format = return_input_file_type(txt_file)
 
     if input_file_format == 'consolidated_statement':
-        print("Can't parse consolidated statemnt yet, use transaction history instead.")
+        print("Can't parse consolidated statement yet, use transaction history instead.")
         flush_tmp(txt_file)
         exit(1)
     if input_file_format == 'unknown':
@@ -160,8 +170,8 @@ def main():
                             break
 
                     if not found:
-                        tmp_dict['category'] = 'default'
-                        tmp_dict['account'] = 'default'
+                        tmp_dict['category'] = default_category
+                        tmp_dict['account'] = default_account
                         tmp_dict['description'] = parsed_dict['description']
                         tmp_dict['tags'] = ''
 
