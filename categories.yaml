@@ -1,4 +1,14 @@
+#
+# Dictionary file. If dictionary contains `exclude: True` value, this element will not be
+# add to csv file
+#
+
+
 regexps:
+  # This entry is to exclude the DBS wireless transfers
+  - regexp: '^PAYMENT - DBS INTERNET/WIRELESS'
+    exclude: True
+  # Here go the includes
   - regexp: '^UBER TRIP.*'
     account: 'main'
     category: 'transport'
@@ -59,3 +69,4 @@ regexps:
       - 'taxi'
       - 'grab'
       - 'transport'
+

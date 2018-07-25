@@ -152,16 +152,21 @@ def main():
 
     with open(txt_file, 'r', encoding='latin-1') as f:
         for x in f:  # for line in txt file
+            excluded = False
             x = x.strip()
             if args.debug: print(x)
             if len(x) > 1:
                 parsed = p.match(x)
                 found = False
-                if parsed:
+                if parsed:  # looks like a string with an expense in it
                     parsed_dict = parsed.groupdict()
                     for y in categories['regexps']:  # matching the yaml regexp dictionary to an expense
                         pc = re.compile(y['regexp'])
                         if pc.match(parsed_dict['description']):  # matched a category
+                            if 'exclude' in y.keys() and y['exclude']:
+                                if args.debug: print("Matched entry to exclude: {}".format(y))
+                                excluded = True
+                                break
                             tmp_dict['category'] = y['category']
                             tmp_dict['account'] = y['account']
                             if 'description' in y:
@@ -201,10 +206,11 @@ def main():
 
                     tmp_dict['main_cur'] = currency_convert[parsed_dict['currency']]
 
-                    csv_list.append(dict(tmp_dict))
+                    if not excluded:
+                        csv_list.append(dict(tmp_dict))
 
     with open(csv_file, 'a') as result_file:
-        print(fieldnames)
+        if args.debug: print(fieldnames)
         writer = csv.writer(result_file, dialect='excel')
         writer.writerow(fieldnames)
         for x in csv_list:
