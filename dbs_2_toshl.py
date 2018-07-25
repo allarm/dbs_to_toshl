@@ -16,6 +16,7 @@ def flush_tmp(file):
     :param file:
     :return:
     """
+    # return
     if os.path.isfile(file): os.remove(file)
 
 
@@ -130,18 +131,20 @@ def main():
         exit(1)
 
     # @formatter:off
-    p = re.compile('^(?P<date_str>'
-                   '(?P<day>\d\d)\s'
-                   '(?P<month>\D{3})\s'
-                   '(?P<year>\d{4})'
-                   ')\s+'
-                   '(?P<description>.+?(?=\s\s))\s+'
-                   '(?P<amount_str>'
-                   '(?P<currency>.+?)'
-                   '(?P<amount>\d+[.,]\d+)'
-                   '(?P<flag>.*)'
-                   ')'
-                   )
+    # p = re.compile('^(?P<date_str>'
+    #                '(?P<day>\d\d)\s'
+    #                '(?P<month>\D{3})\s'
+    #                '(?P<year>\d{4})'
+    #                ')\s+'
+    #                '(?P<description>.+?(?=\s\s))\s+'
+    #                '(?P<amount_str>'
+    #                '(?P<currency>.+?)'
+    #                '(?P<amount>\d+[.,]\d+)'
+    #                '(?P<flag>.*)'
+    #                ')'
+    #                )
+    p = re.compile('^(?P<date_str>(?P<day>\d\d)\s(?P<month>\D{3})\s(?P<year>\d{4}))\s+(?P<description>.+?(?=\s\s))\s+'
+                   '(?P<amount_str>(?P<currency>.+?)(?P<amount>\d+[.,]\d+([.]\d+)?)(?P<flag>.*))')
     # @formatter:on
 
     with open(categories_file, 'r') as f:
@@ -175,10 +178,12 @@ def main():
                         tmp_dict['description'] = parsed_dict['description']
                         tmp_dict['tags'] = ''
 
+                    if args.debug: print(parsed_dict)
+
                     tmp_dict['date'] = '{}/{}/{}'.format(parsed_dict['day'],
                                                          month_convert[parsed_dict['month'].lower()],
                                                          parsed_dict['year'])
-                    if parsed_dict['flag'].split() == 'cr':
+                    if parsed_dict['flag'].strip() == 'cr':
                         """
                         cr means credit, if set then populating the income field
                         otherwise populating the expenses field
