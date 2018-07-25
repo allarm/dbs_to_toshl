@@ -86,6 +86,7 @@ def main():
                         help='YAML categories dictionary file (default is {})'.format(categories_file))
     parser.add_argument('-c', '--category', type=str, help='Default Toshl category name')
     parser.add_argument('-a', '--account', type=str, help='Default Toshl account name')
+    parser.add_argument('-r', '--rewrite', action='store_true', help='If set, rewrite the output file')
     parser.add_argument('--debug', action='store_true', help='Turn debug on')
 
     args = parser.parse_args()
@@ -111,9 +112,12 @@ def main():
 
     if args.output: csv_file = args.output
 
-    if os.path.isfile(csv_file):
-        print("File {} exists, better not change it, exiting".format(csv_file))
-        exit(1)
+    if os.path.isfile(csv_file) :
+        if not args.rewrite:
+            print("File {} exists, better not change it, exiting".format(csv_file))
+            exit(1)
+        else:
+            os.remove(csv_file)
 
     if args.dictionary: categories_file = args.dictionary
 
