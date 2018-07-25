@@ -11,7 +11,7 @@ regexps:
     tags:
       - 'ubereats'
       - 'fooddelivery'
-      - 'delivery
+      - 'delivery'
   - regexp: '^7-ELEVEN'
     account: 'main'
     category: 'food'
