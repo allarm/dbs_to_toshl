@@ -2,7 +2,7 @@
 
 Parser for DBS account statements in PDF format. Converts the statements to .csv file edible by Toshl.
 
-Uses xpdfreader for pdf-2-text conversion. Put the 'pdftotext' executable in the same folder.
+Uses `pdftotext` binary from `xpdf-tools` packet for pdf-2-text conversion. Put the `pdftotext` executable in the same folder with the script. The download link is in the `Links` section.
 
 ## Categories dictionary
 
