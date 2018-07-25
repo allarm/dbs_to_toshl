@@ -31,9 +31,6 @@ regexps:
   - regexp: '^GUARDIAN'
     account: 'main'
     category: 'drugs'
-    tags:
-      - '7eleven'
-      - 'food'
   - regexp: '^CALTRAIN'
     account: 'main'
     category: 'transport'
@@ -69,4 +66,7 @@ regexps:
       - 'taxi'
       - 'grab'
       - 'transport'
-
+  - regexp: '^WATSON'
+    account: 'main'
+    category: 'food'
+    description: 'Watsons'

@@ -177,7 +177,10 @@ def main():
                                 tmp_dict['description'] = y['description']
                             else:
                                 tmp_dict['description'] = parsed_dict['description']
-                            tmp_dict['tags'] = ' '.join(y['tags'])
+                            if 'tags' in y.keys():
+                                tmp_dict['tags'] = ' '.join(y['tags'])
+                            else:
+                                tmp_dict['tags'] = ''
                             found = True
                             break
 
