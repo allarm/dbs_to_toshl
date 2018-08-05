@@ -1,72 +1,31 @@
-#
-# Dictionary file. If dictionary contains `exclude: True` value, this element will not be
-# add to csv file
-#
-
-
-regexps:
-  # This entry is to exclude the DBS wireless transfers
-  - regexp: '^PAYMENT - DBS INTERNET/WIRELESS'
+categories:
+  -
+    r:
+     - '^PAYMENT - DBS INTERNET/WIRELESS'
     exclude: True
-  # Here go the includes
-  - regexp: '^UBER TRIP.*'
-    account: 'main'
+  -
     category: 'transport'
-    tags:
-      - 'uber'
-      - 'huuber'
-  - regexp: '^UBER EATS'
+    r:
+      - '^CALTRAIN'
+      - '^UBER TRIP.*'
+      - '^GRAB'
     account: 'main'
-    category: 'food'
     tags:
-      - 'ubereats'
-      - 'fooddelivery'
-      - 'delivery'
-  - regexp: '^7-ELEVEN'
-    account: 'main'
-    category: 'food'
-    tags:
-      - '7eleven'
-      - 'food'
-  - regexp: '^GUARDIAN'
-    account: 'main'
-    category: 'drugs'
-  - regexp: '^CALTRAIN'
-    account: 'main'
-    category: 'transport'
-    tags:
-      - 'SF'
-    description: 'SF train system'
-  - regexp: '^SFMOMA'
-    account: 'main'
-    category: 'museum'
-    description: 'SF MOMA'
-    tags:
-      - 'SF'
-      - 'art'
-  - regexp: '^ITUNES.COM/BILL'
-    account: 'main'
-    category: 'subscriptions'
-    description: 'Apple Itunes payments'
-    tags:
-      - 'subscription'
-      - 'apple'
-  - regexp: '^GO.SKYPE.COM'
-    account: 'main'
-    category: 'subscriptions'
-    description: 'Skype subscription'
-    tags:
-      - 'skype'
-      - 'subscription'
-  - regexp: '^GRAB'
-    account: 'main'
-    category: 'transport'
-    description: 'GRAB taxi payment'
-    tags:
-      - 'taxi'
-      - 'grab'
       - 'transport'
-  - regexp: '^WATSON'
+  -
+    category: 'eatery'
+    r:
+      - '^GUARDIAN'
+      - '^WATSON'
+      - '^LITTLE FARMS'
+      - '^COLD STORAGE'
     account: 'main'
-    category: 'food'
-    description: 'Watsons'
+    tags:
+      - 'food'
+  -
+    category: 'medical'
+    r:
+      - '^GENTLE DENTAL'
+    account: 'main'
+    tags:
+      - 'dental'

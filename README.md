@@ -4,6 +4,10 @@ Parser for DBS account statements in PDF format. Converts the statements to .csv
 
 Uses `pdftotext` binary from `xpdf-tools` packet for pdf-2-text conversion. Put the `pdftotext` executable in the same folder with the script. The download link is in the `Links` section.
 
+## Changelog
+
+- Changed the `yaml` dictionary structure.
+
 ## Categories dictionary
 
 Used for assigning account/categories/tags/description parameters to the output csv file.
@@ -11,27 +15,39 @@ Used for assigning account/categories/tags/description parameters to the output 
 Pretty self-descriptive:
 
 ```yaml
-  - regexp: '^GO.SKYPE.COM'
-    account: 'main'
-    category: 'subscriptions'
-    description: 'Skype subscription'
-    tags:
-      - 'skype'
-      - 'subscription'
-  - regexp: '^GRAB'
-    account: 'main'
+categories:
+  -
+    r:
+     - '^PAYMENT - DBS INTERNET/WIRELESS'
+    exclude: True
+  -
     category: 'transport'
-    description: 'GRAB taxi payment'
+    r:
+      - '^CALTRAIN'
+      - '^UBER TRIP.*'
+      - '^GRAB'
+    account: 'main'
     tags:
-      - 'taxi'
-      - 'grab'
       - 'transport'
+  -
+    category: 'eatery'
+    r:
+      - '^GUARDIAN'
+      - '^WATSON'
+      - '^LITTLE FARMS'
+      - '^COLD STORAGE'
+    account: 'main'
+    tags:
+      - 'food'
+  -
+    category: 'medical'
+    r:
+      - '^GENTLE DENTAL'
+    account: 'main'
+    tags:
+      - 'dental'
 ```
 
-## ToDo
-
-1. Remove `account` from the categories dictionary (or better make it optional) and take it from the command line arguments.
-1. Add command line arguments for default `category` value
 
 ## Links
 1. http://www.xpdfreader.com/download.html
