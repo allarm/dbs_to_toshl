@@ -135,18 +135,6 @@ def main():
         exit(1)
 
     # @formatter:off
-    # p = re.compile('^(?P<date_str>'
-    #                '(?P<day>\d\d)\s'
-    #                '(?P<month>\D{3})\s'
-    #                '(?P<year>\d{4})'
-    #                ')\s+'
-    #                '(?P<description>.+?(?=\s\s))\s+'
-    #                '(?P<amount_str>'
-    #                '(?P<currency>.+?)'
-    #                '(?P<amount>\d+[.,]\d+)'
-    #                '(?P<flag>.*)'
-    #                ')'
-    #                )
     p = re.compile('^(?P<date_str>(?P<day>\d\d)\s(?P<month>\D{3})\s(?P<year>\d{4}))\s+(?P<description>.+?(?=\s\s))\s+'
                    '(?P<amount_str>(?P<currency>.+?)(?P<amount>\d+[.,]\d+([.]\d+)?)(?P<flag>.*))')
     # @formatter:on
@@ -164,10 +152,8 @@ def main():
                 found = False
                 if parsed:  # looks like a string with an expense in it
                     parsed_dict = parsed.groupdict()
-                    # for y in categories['regexps']:  # matching the yaml regexp dictionary to an expense
                     for y in categories['categories']:
                         for r in y['r']:
-                            # pc = re.compile(y['regexp'])
                             pc = re.compile(r)
                             if pc.match(parsed_dict['description']):  # matched a category
                                 if 'exclude' in y.keys() and y['exclude']:
