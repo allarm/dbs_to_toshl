@@ -1,4 +1,31 @@
--
-  vars: ['asdf', 'bcde']
--
-  vars: ['basdf', 'dsaewfae']
+categories:
+  -
+    r:
+     - '^PAYMENT - DBS INTERNET/WIRELESS'
+    exclude: True
+  -
+    category: 'transport'
+    r:
+      - '^CALTRAIN'
+      - '^UBER TRIP.*'
+      - '^GRAB'
+    account: 'main'
+    tags:
+      - 'transport'
+  -
+    category: 'eatery'
+    r:
+      - '^GUARDIAN'
+      - '^WATSON'
+      - '^LITTLE FARMS'
+      - '^COLD STORAGE'
+    account: 'main'
+    tags:
+      - 'food'
+  -
+    category: 'medical'
+    r:
+      - '^GENTLE DENTAL'
+    account: 'main'
+    tags:
+      - 'dental'

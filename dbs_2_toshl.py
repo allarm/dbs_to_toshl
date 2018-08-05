@@ -164,25 +164,28 @@ def main():
                 found = False
                 if parsed:  # looks like a string with an expense in it
                     parsed_dict = parsed.groupdict()
-                    for y in categories['regexps']:  # matching the yaml regexp dictionary to an expense
-                        pc = re.compile(y['regexp'])
-                        if pc.match(parsed_dict['description']):  # matched a category
-                            if 'exclude' in y.keys() and y['exclude']:
-                                if args.debug: print("Matched entry to exclude: {}".format(y))
-                                excluded = True
+                    # for y in categories['regexps']:  # matching the yaml regexp dictionary to an expense
+                    for y in categories['categories']:
+                        for r in y['r']:
+                            # pc = re.compile(y['regexp'])
+                            pc = re.compile(r)
+                            if pc.match(parsed_dict['description']):  # matched a category
+                                if 'exclude' in y.keys() and y['exclude']:
+                                    if args.debug: print("Matched entry to exclude: {}".format(y))
+                                    excluded = True
+                                    break
+                                tmp_dict['category'] = y['category']
+                                tmp_dict['account'] = y['account']
+                                if 'description' in y:
+                                    tmp_dict['description'] = y['description']
+                                else:
+                                    tmp_dict['description'] = parsed_dict['description']
+                                if 'tags' in y.keys():
+                                    tmp_dict['tags'] = ' '.join(y['tags'])
+                                else:
+                                    tmp_dict['tags'] = ''
+                                found = True
                                 break
-                            tmp_dict['category'] = y['category']
-                            tmp_dict['account'] = y['account']
-                            if 'description' in y:
-                                tmp_dict['description'] = y['description']
-                            else:
-                                tmp_dict['description'] = parsed_dict['description']
-                            if 'tags' in y.keys():
-                                tmp_dict['tags'] = ' '.join(y['tags'])
-                            else:
-                                tmp_dict['tags'] = ''
-                            found = True
-                            break
 
                     if not found:
                         tmp_dict['category'] = default_category
