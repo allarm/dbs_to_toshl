@@ -2,6 +2,7 @@
 *.csv
 .idea
 *.txt
+*.ipynb
 pdftotext
 ### Python template
 # Byte-compiled / optimized / DLL files
