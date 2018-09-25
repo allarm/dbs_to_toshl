@@ -3,6 +3,8 @@
 .idea
 *.txt
 *.ipynb
+categories_converted.yaml
+categories_my.yaml
 pdftotext
 ### Python template
 # Byte-compiled / optimized / DLL files
